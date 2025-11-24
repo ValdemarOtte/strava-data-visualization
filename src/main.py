@@ -9,6 +9,7 @@ import gpxpy
 import matplotlib.pyplot as plt
 
 # Local files
+from .config import PLT_STYLE
 
 
 def load_gpx_file(path: Path):
