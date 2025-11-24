@@ -54,11 +54,18 @@ def calculate_pace(data, distance: int = 1_000):
     return [(time / (i+1)).total_seconds() for i, time in enumerate(times)]
 
 
-def create_x_axis(newlist):
-    x = []
-    for i, d in enumerate(newlist):
-        x.extend([(i+1)]*len(d["paces"]))
-    return(x)
+def create_x_axis(data: list[dict]) -> list[float]:
+    x: list[float] = []
+    for i, element in enumerate(data):
+        x.extend([(i+1)]*len(element["paces"]))
+    return x
+
+
+def create_y_axis(data: list[dict]) -> list[float]:
+    y: list[float] = []
+    for element in data:
+        y.extend(element["paces"])
+    return y
 
 
 
@@ -79,10 +86,8 @@ def main():
     ]
 
     newlist = sorted(data, key=lambda d: d["date"])
-    x = []
-    for i, d in enumerate(newlist):
-        x.extend([(i+1)]*len(d["paces"]))
-    print(x)
+    x = create_x_axis(newlist)
+    y = create_y_axis(newlist)
     return
     p = []
     for i in ["1", "2", "3"]:
