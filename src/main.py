@@ -1,8 +1,14 @@
-#import gpxpy
-#import matplotlib.pyplot as plt
-#import geopy.distance
-from pathlib import Path
+### Imports
+# Standard library
 from datetime import datetime
+from pathlib import Path
+
+# Third-party libraries
+import geopy.distance
+import gpxpy
+import matplotlib.pyplot as plt
+
+# Local files
 
 
 def load_gpx_file(path: Path):
@@ -40,7 +46,7 @@ def b(data):
     return data_
 
 
-def calculate_pace(data, distance: int = 1_000):
+def calculate_pace(data, distance: int = 1_000) -> list[float]:
     times = []
     for d in data:
         distance_ran += d[1]
@@ -85,11 +91,10 @@ def main():
         },
     ]
 
-    newlist = sorted(data, key=lambda d: d["date"])
-    x = create_x_axis(newlist)
-    y = create_y_axis(newlist)
-    return
-    p = []
+    sorted_data = sorted(data, key=lambda d: d["date"])
+    x = create_x_axis(sorted_data)
+    y = create_y_axis(sorted_data)
+
     for i in ["1", "2", "3"]:
         gpx_file = open(f"data\\{i}.gpx", 'r')
         data = load_gpx_file(gpx_file)
@@ -97,25 +102,8 @@ def main():
         data = aa(data)
         data = b(data)
         paces = calculate_pace(data)
-        
-        s = 0
-        times = []
-        for d in data:
-            s += d[1]
-            if s >= 1:
-                s = 0
-                times.append(d[0])
-        
-        lst = []
-        for i, time in enumerate(times):
-            value =(time / (i+1)).total_seconds()
-            lst.append((time / (i+1)).total_seconds())
-            p.append(value)
-        print(len(lst))
-    
-    x = [1]*14
-    x.extend([2]*21)
-    x.extend([3]*8)
+
+
 
 
 if __name__ == "__main__":
