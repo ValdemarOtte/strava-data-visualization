@@ -21,7 +21,7 @@ def aa(data):
         timee = b[2] - a[2]
         coords_1 = (b[0], b[1])
         coords_2 = (a[0], a[1])
-        a = geopy.distance.geodesic(coords_1, coords_2).km
+        a = geopy.distance.geodesic(coords_1, coords_2).m
         if a != 0:
             values.append([timee, a])
     return values
@@ -40,13 +40,31 @@ def b(data):
     return data_
 
 
+def calculate_pace(data, distance: int = 1_000):
+    times = []
+    for d in data:
+        distance_ran += d[1]
+        if distance_ran >= distance:
+            distance_ran = 0
+            times.append(d[0])
+
+    # `times` are a list of the time from the start of the run and each distance (e.g. 1km, 2km , ...). 
+    # To get the pace of each distance we can divide each element in the list with it's number in the sequence.
+    # We add one to `i`, because enumerate starts counting from zero.
+    return [(time / (i+1)).total_seconds() for i, time in enumerate(times)]
+
+
+
 def main():
     p = []
     for i in ["1", "2", "3"]:
         gpx_file = open(f"data\\{i}.gpx", 'r')
         data = load_gpx_file(gpx_file)
+        print(data)
+        return
         data = aa(data)
         data = b(data)
+        paces = calculate_pace(data)
         
         s = 0
         times = []
@@ -66,9 +84,7 @@ def main():
     x = [1]*14
     x.extend([2]*21)
     x.extend([3]*8)
-    
-    plt.plot(x, p, 'o')
-    plt.show()
+
 
 if __name__ == "__main__":
     main()
