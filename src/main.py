@@ -1,6 +1,6 @@
-import gpxpy
-import matplotlib.pyplot as plt
-import geopy.distance
+#import gpxpy
+#import matplotlib.pyplot as plt
+#import geopy.distance
 from pathlib import Path
 from datetime import datetime
 
@@ -54,14 +54,41 @@ def calculate_pace(data, distance: int = 1_000):
     return [(time / (i+1)).total_seconds() for i, time in enumerate(times)]
 
 
+def create_x_axis(newlist):
+    x = []
+    for i, d in enumerate(newlist):
+        x.extend([(i+1)]*len(d["paces"]))
+    return(x)
+
+
 
 def main():
+    data = [
+        {
+            "date": 2,
+            "paces": [1, 2]
+        },
+        {
+            "date": 3,
+            "paces": [1, 2, 3]
+        },
+        {
+            "date": 1,
+            "paces": [1, 2, 3, 4]
+        },
+    ]
+
+    newlist = sorted(data, key=lambda d: d["date"])
+    x = []
+    for i, d in enumerate(newlist):
+        x.extend([(i+1)]*len(d["paces"]))
+    print(x)
+    return
     p = []
     for i in ["1", "2", "3"]:
         gpx_file = open(f"data\\{i}.gpx", 'r')
         data = load_gpx_file(gpx_file)
         print(data)
-        return
         data = aa(data)
         data = b(data)
         paces = calculate_pace(data)
