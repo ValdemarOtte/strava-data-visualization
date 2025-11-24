@@ -2,6 +2,7 @@
 # Standard library
 from datetime import datetime
 from pathlib import Path
+import os
 
 # Third-party libraries
 import geopy.distance
@@ -9,7 +10,7 @@ import gpxpy
 import matplotlib.pyplot as plt
 
 # Local files
-from .config import PLT_STYLE
+from config import PLT_STYLE
 
 
 def load_gpx_file(path: Path):
@@ -49,6 +50,7 @@ def b(data):
 
 def calculate_pace(data, distance: int = 1_000) -> list[float]:
     times = []
+    distance_ran = 0
     for d in data:
         distance_ran += d[1]
         if distance_ran >= distance:
@@ -75,36 +77,41 @@ def create_y_axis(data: list[dict]) -> list[float]:
     return y
 
 
+def files_from_directory(path: Path) -> list[Path]:
+    """
+    Get relative paths for all files from a direcetory.
+
+    :param Path path: Path to directory.
+    :return list[str]: A list of relative paths for all the files in the directory.
+    """
+    return [Path(path / file) for file in os.listdir(path)]
+
+
 
 def main():
-    data = [
-        {
-            "date": 2,
-            "paces": [1, 2]
-        },
-        {
-            "date": 3,
-            "paces": [1, 2, 3]
-        },
-        {
-            "date": 1,
-            "paces": [1, 2, 3, 4]
-        },
-    ]
+    path = Path("data")
+    files = files_from_directory(path)
 
-    sorted_data = sorted(data, key=lambda d: d["date"])
-    x = create_x_axis(sorted_data)
-    y = create_y_axis(sorted_data)
 
-    for i in ["1", "2", "3"]:
-        gpx_file = open(f"data\\{i}.gpx", 'r')
+    aaa = []
+
+    
+
+    for file in files:
+        gpx_file = open(file, "r")
         data = load_gpx_file(gpx_file)
-        print(data)
+        aaaa = {"date": data[0][2].date()}
         data = aa(data)
         data = b(data)
         paces = calculate_pace(data)
+        aaaa["paces"] = paces
+        aaa.append(aaaa)
 
-
+    sorted_data = sorted(aaa, key=lambda d: d["date"])
+    x = create_x_axis(sorted_data)
+    y = create_y_axis(sorted_data)  
+    print(x)
+    print(y)
 
 
 if __name__ == "__main__":
