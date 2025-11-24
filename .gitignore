@@ -1,0 +1,34 @@
+# Specific files to ignore for this project
+
+
+# Default files to ignore
+## Byte-compiled / Optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+## Django
+db.sqlite3
+**/migrations/*.py
+!/**/migrations/__init__.py
+
+## Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+## MyPy
+.mypy_cache/
+
+## PyTest
+.pytest_cache/
+
+## Ruff
+.ruff_cache/
+
+## Pytest Cov
+.coverage
