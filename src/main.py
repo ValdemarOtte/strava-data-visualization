@@ -91,8 +91,6 @@ def pace_for_all_run(path_to_gpxs: Path):
 
 
 def main():
-
-
     path = Path("data")
     data = pace_for_all_run(path)
 
