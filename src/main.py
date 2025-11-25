@@ -65,20 +65,6 @@ def pace_for_run(path_to_gpx_file: Path):
     return data
 
 
-def create_x_axis(data: list[dict]) -> list[float]:
-    x: list[float] = []
-    for i, element in enumerate(data):
-        x.extend([(i+1)]*len(element["paces"]))
-    return x
-
-
-def create_y_axis(data: list[dict]) -> list[float]:
-    y: list[float] = []
-    for element in data:
-        y.extend(element["paces"])
-    return y
-
-
 def pace_for_all_run(path_to_gpxs: Path):
     path_to_gpx_files = files_from_directory(path_to_gpxs)
     data = []
