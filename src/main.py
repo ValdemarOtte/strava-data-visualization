@@ -1,6 +1,6 @@
 ### Imports
 # Standard library
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 import os
 
@@ -28,7 +28,7 @@ def aa(points):
     data = []
     for point_1, point_2 in zip(points[:-1], points[1:]):
         # point_i[2] is time. 
-        time_travelled = point_2[2] - point_1[2]
+        time_travelled = (point_2[2] - point_1[2]).total_seconds()
         # point_i[0] is latitude and point_i[1] is longitude. 
         # We used meters (m).
         distance_travelled = geopy.distance.geodesic(
@@ -41,34 +41,21 @@ def aa(points):
     return data
 
 
-def b(data):
-    data_ = []
-    time_now = datetime.now()
-    time_now_ = datetime.now()
-    s = 0
-    for d in data:
-        s += d[1]
-        time_now += d[0]
-        #data_.append([time_now - time_now_, round(s, 3)])
-        data_.append([time_now - time_now_, d[1]])
-    return data_
-
-
 def calculate_pace(data, distance: int = 1_000) -> list[float]:
     times = []
     distance_ran = 0
+    time = 0
     for d in data:
         distance_ran += d[1]
+        time += d[0]
         if distance_ran >= distance:
+            times.append(time)
             distance_ran = 0
-            times.append(d[0])
-        # TODO Add the lasted time, because the run has ended.
-        # Used the formular: time = time * (distance / distance_ran)
-
-    # `times` are a list of the time from the start of the run and each distance (e.g. 1km, 2km , ...). 
-    # To get the pace of each distance we can divide each element in the list with it's number in the sequence.
-    # We add one to `i`, because enumerate starts counting from zero.
-    return [(time / (i+1)).total_seconds() for i, time in enumerate(times)]
+            time = 0
+    if distance_ran > 0:
+        times.append(time * (distance / distance_ran))
+    print(times)
+    return times
 
 
 def create_x_axis(data: list[dict]) -> list[float]:
@@ -90,7 +77,6 @@ def pace_for_run(path_to_gpx_file: Path):
     data = load_gpx_file(gpx_file)
     aaaa = {"date": data[0][2].date()}
     data = aa(data)
-    data = b(data)
     paces = calculate_pace(data)
     aaaa["paces"] = paces
     return aaaa
@@ -105,6 +91,8 @@ def pace_for_all_run(path_to_gpxs: Path):
 
 
 def main():
+
+
     path = Path("data")
     data = pace_for_all_run(path)
 
