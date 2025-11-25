@@ -1,17 +1,15 @@
 ### Imports
 # Standard library
-from datetime import datetime, timedelta
+from datetime import datetime
 from pathlib import Path
-import os
 
 # Third-party libraries
 import geopy.distance
 import gpxpy
-import matplotlib.pyplot as plt
 
 # Local files
-from config import PLT_STYLE
 from utilits import files_from_directory
+from plots import plot_paces_for_each_run
 
 
 def load_gpx_file(path: Path) -> list[float, float, datetime]:
@@ -24,8 +22,8 @@ def load_gpx_file(path: Path) -> list[float, float, datetime]:
     return data
 
 
-def aa(points):
-    data = []
+def transform_gpx_data(points):
+    sequence: list[float, float] = []
     for point_1, point_2 in zip(points[:-1], points[1:]):
         # point_i[2] is time. 
         time_travelled = (point_2[2] - point_1[2]).total_seconds()
@@ -37,25 +35,34 @@ def aa(points):
         ).m
         # We skip the data points where the distance travelled is zero to get a better pace.
         if distance_travelled != 0:
-            data.append([time_travelled, distance_travelled])
-    return data
+            sequence.append([time_travelled, distance_travelled])
+    return sequence
 
 
 def calculate_pace(data, distance: int = 1_000) -> list[float]:
-    times = []
-    distance_ran = 0
-    time = 0
-    for d in data:
-        distance_ran += d[1]
-        time += d[0]
+    times: list[float] = []
+    time: float = 0
+    distance_ran: float = 0
+    for element in data:
+        distance_ran += element[1]
+        time += element[0]
         if distance_ran >= distance:
             times.append(time)
             distance_ran = 0
             time = 0
     if distance_ran > 0:
         times.append(time * (distance / distance_ran))
-    print(times)
     return times
+
+
+def pace_for_run(path_to_gpx_file: Path):
+    gpx_file = open(path_to_gpx_file, "r")
+    points = load_gpx_file(gpx_file)
+    data = {"date": points[0][2].date()}
+    sequence = transform_gpx_data(points)
+    paces = calculate_pace(sequence)
+    data["paces"] = paces
+    return data
 
 
 def create_x_axis(data: list[dict]) -> list[float]:
@@ -70,16 +77,6 @@ def create_y_axis(data: list[dict]) -> list[float]:
     for element in data:
         y.extend(element["paces"])
     return y
-
-
-def pace_for_run(path_to_gpx_file: Path):
-    gpx_file = open(path_to_gpx_file, "r")
-    data = load_gpx_file(gpx_file)
-    aaaa = {"date": data[0][2].date()}
-    data = aa(data)
-    paces = calculate_pace(data)
-    aaaa["paces"] = paces
-    return aaaa
 
 
 def pace_for_all_run(path_to_gpxs: Path):
@@ -102,10 +99,7 @@ def main():
             "paces": [sum(d["paces"])/len(d["paces"])]
         })
 
-    x = create_x_axis(a)
-    y = create_y_axis(a)  
-    print(x)
-    print(y)
+    plot_paces_for_each_run(data)
 
 
 if __name__ == "__main__":
