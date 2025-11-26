@@ -4,6 +4,7 @@
 # Default files to ignore
 ## Byte-compiled / Optimized / DLL files
 __pycache__/
+**/__pycache__/
 *.py[cod]
 *$py.class
 
