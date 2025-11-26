@@ -109,17 +109,23 @@ def main():
     data = pace_for_all_run(path)
 
     sorted_data = sorted(data, key=lambda d: d["date"])
+
     a = []
     for d in sorted_data:
         a.append({
             "date": d["date"],
             "paces": [sum(d["paces"])/len(d["paces"])]
         })
-
+    for d in a:
+        if d["paces"][0] < 222:
+            print(d["date"], d["paces"])
+    x = create_x_axis(sorted_data)
+    y = create_y_axis(sorted_data)
+    plt.plot(x, y, 'o')
     x = create_x_axis(a)
     y = create_y_axis(a)  
-    print(x)
-    print(y)
+    plt.plot(x, y)
+    plt.show()
 
 
 if __name__ == "__main__":
