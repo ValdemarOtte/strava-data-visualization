@@ -2,16 +2,14 @@
 # Standard library
 from datetime import datetime
 from pathlib import Path
-import os
 
 # Third-party libraries
 import geopy.distance
 import gpxpy
-import matplotlib.pyplot as plt
 
 # Local files
-from config import PLT_STYLE
 from utilits import files_from_directory
+from plots import plot_paces_for_each_run
 
 
 def load_gpx_file(path: Path) -> list[float, float, datetime]:
@@ -24,11 +22,11 @@ def load_gpx_file(path: Path) -> list[float, float, datetime]:
     return data
 
 
-def aa(points):
-    data = []
+def transform_gpx_data(points):
+    sequence: list[float, float] = []
     for point_1, point_2 in zip(points[:-1], points[1:]):
         # point_i[2] is time. 
-        time_travelled = point_2[2] - point_1[2]
+        time_travelled = (point_2[2] - point_1[2]).total_seconds()
         # point_i[0] is latitude and point_i[1] is longitude. 
         # We used meters (m).
         distance_travelled = geopy.distance.geodesic(
@@ -37,63 +35,34 @@ def aa(points):
         ).m
         # We skip the data points where the distance travelled is zero to get a better pace.
         if distance_travelled != 0:
-            data.append([time_travelled, distance_travelled])
-    return data
-
-
-def b(data):
-    data_ = []
-    time_now = datetime.now()
-    time_now_ = datetime.now()
-    s = 0
-    for d in data:
-        s += d[1]
-        time_now += d[0]
-        #data_.append([time_now - time_now_, round(s, 3)])
-        data_.append([time_now - time_now_, d[1]])
-    return data_
+            sequence.append([time_travelled, distance_travelled])
+    return sequence
 
 
 def calculate_pace(data, distance: int = 1_000) -> list[float]:
-    times = []
-    distance_ran = 0
-    for d in data:
-        distance_ran += d[1]
-        if distance_ran >= distance:
-            distance_ran = 0
-            times.append(d[0])
-        # TODO Add the lasted time, because the run has ended.
-        # Used the formular: time = time * (distance / distance_ran)
-
-    # `times` are a list of the time from the start of the run and each distance (e.g. 1km, 2km , ...). 
-    # To get the pace of each distance we can divide each element in the list with it's number in the sequence.
-    # We add one to `i`, because enumerate starts counting from zero.
-    return [(time / (i+1)).total_seconds() for i, time in enumerate(times)]
-
-
-def create_x_axis(data: list[dict]) -> list[float]:
-    x: list[float] = []
-    for i, element in enumerate(data):
-        x.extend([(i+1)]*len(element["paces"]))
-    return x
-
-
-def create_y_axis(data: list[dict]) -> list[float]:
-    y: list[float] = []
+    times: list[float] = []
+    time: float = 0
+    distance_ran: float = 0
     for element in data:
-        y.extend(element["paces"])
-    return y
+        distance_ran += element[1]
+        time += element[0]
+        if distance_ran >= distance:
+            times.append(time)
+            distance_ran = 0
+            time = 0
+    if distance_ran > 0:
+        times.append(time * (distance / distance_ran))
+    return times
 
 
 def pace_for_run(path_to_gpx_file: Path):
     gpx_file = open(path_to_gpx_file, "r")
-    data = load_gpx_file(gpx_file)
-    aaaa = {"date": data[0][2].date()}
-    data = aa(data)
-    data = b(data)
-    paces = calculate_pace(data)
-    aaaa["paces"] = paces
-    return aaaa
+    points = load_gpx_file(gpx_file)
+    data = {"date": points[0][2].date()}
+    sequence = transform_gpx_data(points)
+    paces = calculate_pace(sequence)
+    data["paces"] = paces
+    return data
 
 
 def pace_for_all_run(path_to_gpxs: Path):
